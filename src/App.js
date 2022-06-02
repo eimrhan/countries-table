@@ -1,25 +1,116 @@
-import logo from './logo.svg';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import { Table, InputGroup, FormControl, Button, Container, Row, Col } from 'react-bootstrap';
+
+import { useState, useEffect } from 'react';
+import axios from 'axios'
 
 function App() {
+
+  const [country, setCountry] = useState([])
+
+  //* capital search start
+  const [capitalSearchText, setCapitalSearchText] = useState("")
+
+  const onChangeCapital = (e) => {
+    setCapitalSearchText(e.target.value)
+  }
+
+  const filterByCapital = () => {
+    if (capitalSearchText) {
+      axios
+        .get(`https://restcountries.com/v2/capital/${capitalSearchText}`)
+        .then(response => setCountry(response.data))
+        .catch(error => (console.log(error)))
+    } else {
+      axios
+        .get('https://restcountries.com/v2/all')
+        .then(response => setCountry(response.data))
+        .catch(error => (console.log(error)))
+    }
+  }
+  //* capital search end
+
+  //* general search start
+  const [generalSearchText, setGeneralSearchText] = useState("")
+
+  const onChangeGeneral = (e) => {
+    setGeneralSearchText(e.target.value)
+  }
+
+  const filtered = country.filter((item) => {
+    return Object.keys(item).some((key) => {
+      return item[key].toString().toLowerCase().includes(generalSearchText.toLowerCase())
+    })
+  })
+  //* general search end
+
+  useEffect(() => {
+    axios
+      .get('https://restcountries.com/v2/all')
+      .then(response => setCountry(response.data))
+      .catch(error => (console.log(error)))
+  }, [])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+      <Container className='search-boxes'>
+        <Row>
+          <Col sm={12} md={6}>
+            <InputGroup className="general-search mb-3">
+              <InputGroup.Text className='bg-dark'>Dynamic Search by</InputGroup.Text>
+              <FormControl aria-label="general" placeholder='General' className='bg-dark' value={generalSearchText} onChange={onChangeGeneral} />
+              {/* <Button variant="outline-primary" id="search-button" onClick={filterByGeneral}>Search</Button> */}
+            </InputGroup>
+          </Col>
+          <Col sm={12} md={6}>
+            <InputGroup className="capital-search mb-3">
+              <InputGroup.Text className='bg-dark'>Search by</InputGroup.Text>
+              <FormControl aria-label="capital" placeholder='Capital' className='bg-dark' value={capitalSearchText} onChange={onChangeCapital} />
+              <Button variant="outline-primary" id="search-button" onClick={filterByCapital}>
+                Search
+              </Button>
+            </InputGroup>
+          </Col>
+        </Row>
+      </Container>
 
+      <Table striped bordered hover responsive variant="dark">
+        <thead>
+          <tr>
+            <th>Flag</th>
+            <th>Country</th>
+            <th>Capital</th>
+            <th>Region</th>
+          </tr>
+        </thead>
+        {generalSearchText
+          ? (
+            <tbody>
+              {filtered.map((ctry, i) => (
+                <tr key={ctry.numericCode}>
+                  <td id='img'><img alt={"flag"} src={ctry.flag}></img></td>
+                  <td>{ctry.name}</td>
+                  <td>{ctry.capital}</td>
+                  <td>{ctry.region}</td>
+                </tr>
+              ))}
+            </tbody>)
+          : (
+            <tbody>
+              {country.map(c => {
+                return (
+                  <tr key={c.numericCode}>
+                    <td id='img'><img alt={"flag"} src={c.flag}></img></td>
+                    <td>{c.name}</td>
+                    <td>{c.capital}</td>
+                    <td>{c.region}</td>
+                  </tr>
+                )
+              })}
+            </tbody>)}
+      </Table>
+    </div>
+  )
+}
 export default App;
