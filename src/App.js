@@ -9,6 +9,17 @@ function App() {
 
   const [country, setCountry] = useState([])
 
+  const loadData = () => {
+    axios
+      .get('https://restcountries.com/v2/all')
+      .then(response => setCountry(response.data))
+      .catch(error => (console.log(error)))
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
   //* capital search start
   const [capitalSearchText, setCapitalSearchText] = useState("")
 
@@ -23,10 +34,7 @@ function App() {
         .then(response => setCountry(response.data))
         .catch(error => (console.log(error)))
     } else {
-      axios
-        .get('https://restcountries.com/v2/all')
-        .then(response => setCountry(response.data))
-        .catch(error => (console.log(error)))
+      loadData()
     }
   }
   //* capital search end
@@ -43,14 +51,21 @@ function App() {
       return item[key].toString().toLowerCase().includes(generalSearchText.toLowerCase())
     })
   })
-  //* general search end
 
-  useEffect(() => {
-    axios
-      .get('https://restcountries.com/v2/all')
-      .then(response => setCountry(response.data))
-      .catch(error => (console.log(error)))
-  }, [])
+  const filterByGeneral = () => {
+    return (
+      <tbody>
+        {filtered.map((ctry) => (
+          <tr key={ctry.numericCode}>
+            <td id='img'><img alt={"flag"} src={ctry.flag}></img></td>
+            <td>{ctry.name}</td>
+            <td>{ctry.capital}</td>
+            <td>{ctry.region}</td>
+          </tr>
+        ))}
+      </tbody>)
+  }
+  //* general search end
 
   return (
     <div className="App">
@@ -85,17 +100,7 @@ function App() {
           </tr>
         </thead>
         {generalSearchText
-          ? (
-            <tbody>
-              {filtered.map((ctry, i) => (
-                <tr key={ctry.numericCode}>
-                  <td id='img'><img alt={"flag"} src={ctry.flag}></img></td>
-                  <td>{ctry.name}</td>
-                  <td>{ctry.capital}</td>
-                  <td>{ctry.region}</td>
-                </tr>
-              ))}
-            </tbody>)
+          ? filterByGeneral()
           : (
             <tbody>
               {country.map(c => {
