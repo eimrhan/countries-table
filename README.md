@@ -1,16 +1,18 @@
 # Countries Table
 
-### This table is searching Countries for Capital City or dynamic locale filtering with any word what do you type.
+### This table is searching Countries for Capital City or dynamic locale filtering with any word what you type.
 
  ![preview](./preview.jpg)
+ ![preview](./preview.gif)
 
+---
 
  ## Tech Stack 
 ```
 * React
 * react-bootstrap
 ```
-
+---
 
 ## Available Scripts
 
